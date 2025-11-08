@@ -23,6 +23,7 @@ tracing-subscriber = { version = "0.3.20", features = [
     "env-filter",
     "tracing-log",
 ] }
+utf8-decode = "1.0.1"
 
 [[bin]]
 name = "ra"

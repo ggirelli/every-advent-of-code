@@ -124,6 +124,53 @@ pub fn run_part_1(input: PathBuf) -> Result<(), Error> {
     Ok(())
 }
 
+fn execute_single_light_operation_v2(
+    mut grid: Array2<u32>,
+    instruction: &ParsedInstruction,
+) -> Result<Array2<u32>, Error> {
+    match instruction.op {
+        OperationType::On => {
+            // Turn on the lights.
+            grid.slice_mut(s![
+                instruction.xmin..(instruction.xmax + 1),
+                instruction.ymin..(instruction.ymax + 1)
+            ])
+            .mapv_inplace(|v: u32| v + 1);
+        }
+        OperationType::Off => {
+            // Turn off the lights.
+            grid.slice_mut(s![
+                instruction.xmin..(instruction.xmax + 1),
+                instruction.ymin..(instruction.ymax + 1)
+            ])
+            .mapv_inplace(|v: u32| if v == 0 { v } else { v - 1 });
+        }
+        OperationType::Toggle => {
+            // Toggle the lights.
+            grid.slice_mut(s![
+                instruction.xmin..(instruction.xmax + 1),
+                instruction.ymin..(instruction.ymax + 1)
+            ])
+            .mapv_inplace(|v| v + 2);
+        }
+    }
+    Ok(grid)
+}
+
+fn operate_lights_v2(instructions: Vec<String>) -> Result<Array2<u32>, Error> {
+    let mut grid: Array2<u32> = Array2::zeros((1000, 1000)).mapv(|_: u32| 0);
+    for line in instructions {
+        grid = execute_single_light_operation_v2(grid, &parse_instruction(&line)?)?;
+    }
+    Ok(grid)
+}
+
+pub fn run_part_2(input: PathBuf) -> Result<(), Error> {
+    let grid: Array2<u32> = operate_lights_v2(read_lines(input)?)?;
+    tracing::info!("Total brightness: {}", &grid.sum());
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
